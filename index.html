@@ -1875,16 +1875,9 @@
         const img = new Image();
         img.onload = () => {
           const hc = document.getElementById("hidden-canvas");
-          const w = img.naturalWidth;
-          const h = img.naturalHeight;
-          hc.width = w;
-          hc.height = h;
-          const ctx = hc.getContext("2d");
-          ctx.save();
-          ctx.translate(w, 0);
-          ctx.scale(-1, 1);
-          ctx.drawImage(img, 0, 0);
-          ctx.restore();
+          hc.width = img.naturalWidth;
+          hc.height = img.naturalHeight;
+          hc.getContext("2d").drawImage(img, 0, 0);
           handlePhotoTaken(hc.toDataURL("image/jpeg", 0.82));
         };
         img.src = URL.createObjectURL(file);
