@@ -2070,16 +2070,16 @@
               dh = vh * scale;
             const ox = (W - dw) / 2,
               oy = (HALF - dh) / 2;
+
             STARS_BOT.forEach(([lx, ly, sr, rot]) => {
               const cx = lx * W;
               const cy = HALF + ly * HALF;
               const r = sr * W;
-              const srcY = ly * HALF;
-              if (cy - r < HALF) return; // 위 절반 침범하는 별 스킵
               ctx.save();
               starDraw(ctx, cx, cy, r, rot);
               ctx.clip();
-              ctx.drawImage(topC, 0, cy - srcY, W, HALF);
+              ctx.translate(0, HALF);
+              ctx.drawImage(rv, ox, oy, dw, dh);
               ctx.restore();
             });
           }
@@ -2273,11 +2273,7 @@
         });
 
         // ── 2. Draw top half ──
-        ctx.save();
-        ctx.translate(W, 0);
-        ctx.scale(-1, 1);
         ctx.drawImage(topC, 0, 0);
-        ctx.restore();
 
         // ── 3. TOP HALF: stars (적게)
         STARS_TOP.forEach(([lx, ly, sr, rot]) => {
