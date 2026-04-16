@@ -1901,6 +1901,7 @@
       let mediaRecorder = null;
       let recordedChunks = [];
       let recordedBlob = null;
+      let recordedFacingMode = "environment";
       let recTimerInterval = null;
       let recSeconds = 0;
       let videoResultRafId = null;
@@ -1935,6 +1936,7 @@
 
       function startRecording() {
         if (!cameraStream) return;
+        recordedFacingMode = facingMode; // ← 여기
         recordedChunks = [];
         recSeconds = 0;
 
@@ -2000,8 +2002,8 @@
         const url = URL.createObjectURL(recordedBlob);
         const rv = document.getElementById("result-video");
         rv.src = url;
-        rv.style.transform = "scaleX(-1)"; // ← 이 줄 추가
         rv.muted = false;
+        rv.style.transform = recordedFacingMode === "user" ? "scaleX(-1)" : ""; // ← 여기
         rv.play();
 
         // Theme bottom colour
