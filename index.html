@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Punch Card Photo</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<link rel="stylesheet" href="https://use.typekit.net/ekf3zkg.css">
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --pink: #f472b6;
+  --pink-light: #f9a8d4;
+  --pink-btn: #ec4899;
+  --dark: #111111;
+  --dark2: #1c1c1c;
+  --dark3: #2a2a2a;
+  --text: #ffffff;
+  --text-muted: #888;
+}
+
+body{
+  background:#222;
+  font-family:'Pretendard', -apple-system, sans-serif;
+  color:var(--text);
+  min-height:100dvh;
+  display:flex;flex-direction:column;align-items:center;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* ── max-width container ── */
+#app-container{
+  width:100%;
+  max-width:1000px;
+  min-height:100dvh;
+  position:relative;
+  background:var(--dark);
+  overflow:hidden;
+}
+
+/* ── STAR DECORATIONS — inside app-container, not fixed ── */
+.star-deco {
+  position:absolute;
+  pointer-events:none;
+  z-index:0;
+}
+.star-deco svg { display:block; }
+
+/* ── screens ── */
+.screen{display:none;width:100%;flex-direction:column;align-items:center;min-height:100dvh;position:relative;z-index:1}
+.screen.active{display:flex}
+
+/* ══════════════════════════════
+   START SCREEN
+══════════════════════════════ */
+#scr-start{
+  justify-content:center;
+  gap:0;
+  padding:40px 24px;
+}
+#scr-start > *{ width:100%; max-width:360px; }
+
+.logo-title{
+  font-family:'cossette-titre', 'Pretendard', serif;
+  font-size:32px;
+  font-weight:400;
+  color:var(--pink-light);
+  margin-bottom:48px;
+  text-align:center;
+  letter-spacing:0.01em;
+}
+
+.menu-btn{
+  width:100%;
+  padding:17px 0;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  margin-bottom:12px;
+  transition:opacity .15s, transform .1s;
+  border: none;
+  letter-spacing:0.02em;
+}
+.menu-btn:active{opacity:.75; transform:scale(.98)}
+
+.btn-solo{
+  background:transparent;
+  color:var(--pink);
+  border:2px solid var(--pink) !important;
+}
+.btn-host{
+  background:transparent;
+  color:var(--pink);
+  border:2px solid var(--pink) !important;
+}
+.btn-join{
+  background:var(--dark3);
+  color:var(--text);
+  border:none !important;
+}
+
+/* ══════════════════════════════
+   HOST SETUP
+══════════════════════════════ */
+#scr-host{justify-content:flex-start;padding:0;padding-top:56px}
+#scr-host > *,#scr-join > *{max-width:520px;width:100%}
+
+.code-box{
+  background:var(--dark2);
+  border-radius:20px;
+  padding:28px 24px;
+  text-align:center;
+  width:calc(100% - 40px);
+  margin:20px 0 16px;
+}
+.code-label{font-size:12px;color:var(--text-muted);margin-bottom:10px}
+.code-value{font-size:40px;font-weight:800;letter-spacing:.18em;color:var(--pink-light)}
+.code-copy{
+  margin-top:14px;background:none;border:1px solid #333;
+  color:#aaa;border-radius:10px;padding:8px 20px;font-size:13px;cursor:pointer;
+}
+
+.friends-list{
+  width:calc(100% - 40px);background:#111;border-radius:16px;
+  padding:16px 20px;display:flex;flex-direction:column;gap:10px;
+}
+.friend-slot{display:flex;align-items:center;gap:10px;font-size:14px;color:#666}
+.friend-dot{width:10px;height:10px;border-radius:50%;background:#2a2a2a;flex-shrink:0}
+.friend-dot.me{background:var(--pink)}
+.friend-dot.on{background:#a0f5c0}
+
+.start-btn{
+  width:calc(100% - 40px);margin:20px 0 0;
+  padding:16px;border:none;border-radius:14px;
+  background:var(--pink-btn);color:#fff;font-size:16px;font-weight:700;
+  cursor:pointer;opacity:.4;pointer-events:none;transition:opacity .2s;
+}
+.start-btn.ready{opacity:1;pointer-events:all}
+.waiting-note{font-size:12px;color:#555;margin-top:12px;text-align:center}
+
+/* ══════════════════════════════
+   JOIN SCREEN
+══════════════════════════════ */
+#scr-join{justify-content:center;padding:56px 24px 40px}
+
+.join-inner{
+  width:100%;max-width:360px;
+  display:flex;flex-direction:column;
+  align-items:center;
+  gap:0;
+}
+
+.join-title{
+  font-family:'cossette-titre', 'Pretendard', serif;
+  font-size:32px;
+  color:var(--pink-light);
+  margin-bottom:48px;
+  text-align:center;
+}
+
+.code-input-wrap{
+  width:100%;
+  display:flex;flex-direction:column;gap:12px;
+}
+
+.code-input{
+  background:#fff;
+  border:none;
+  color:#000;
+  border-radius:12px;
+  padding:16px 20px;
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:.1em;
+  text-align:center;
+  text-transform:uppercase;
+  width:100%;
+  outline:none;
+}
+.code-input::placeholder{color:#999}
+
+.join-btn{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:12px;
+  background:var(--pink-btn);
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  transition:opacity .15s;
+}
+.join-btn:active{opacity:.8}
+
+.error-msg{color:#ff6b6b;font-size:13px;text-align:center;min-height:20px;margin-top:4px}
+
+/* ══════════════════════════════
+   HOST SEND CODE SCREEN (share code view)
+══════════════════════════════ */
+#scr-sendcode{justify-content:center;padding:40px 24px}
+#scr-join{justify-content:center;padding:56px 24px 40px}
+
+.sendcode-inner{
+  width:100%;max-width:360px;
+  display:flex;flex-direction:column;
+  align-items:center;
+}
+
+.sendcode-title{
+  font-family:'cossette-titre', 'Pretendard', serif;
+  font-size:32px;
+  color:var(--pink-light);
+  margin-bottom:48px;
+  text-align:center;
+}
+
+.sendcode-field{
+  width:100%;
+  background:#fff;
+  border-radius:12px;
+  padding:16px 20px;
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-align:center;
+  color:#111;
+  margin-bottom:12px;
+  border:none;
+  outline:none;
+  user-select:all;
+}
+
+.sendcode-btn{
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:12px;
+  background:var(--pink-btn);
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  margin-bottom:12px;
+}
+
+.sendcode-back{
+  background:none;
+  border:none;
+  color:var(--text-muted);
+  font-size:14px;
+  cursor:pointer;
+  margin-top:4px;
+}
+
+/* ══════════════════════════════
+   CAMERA SCREEN — 50/50 split, full viewport height
+══════════════════════════════ */
+#scr-camera{
+  padding:0;
+  position:relative;
+  height:100dvh;
+  min-height:100dvh;
+  overflow:hidden;
+  background:#000;
+}
+
+/* Top half — video / selfie */
+#video-wrap{
+  position:absolute;
+  top:0; left:0; right:0;
+  height:50%;
+  background:#00e600;
+  overflow:hidden;
+}
+#video{
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* Stars scattered over the video half */
+#video-stars{
+  position:absolute;inset:0;
+  pointer-events:none;z-index:2;
+  overflow:hidden;
+}
+.vstar{
+  position:absolute;
+  opacity:0.82;
+}
+
+/* Bottom half — theme colour */
+#cam-bottom{
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:50%;
+  background:var(--pink);
+  overflow:hidden;
+  transition:background .25s;
+}
+
+/* Stars scattered over the bottom half */
+#cam-bottom-stars{
+  position:absolute;inset:0;
+  pointer-events:none;z-index:0;
+}
+.bstar{
+  position:absolute;
+  opacity:0.55;
+}
+
+/* Controls live in the bottom half, centered */
+#cam-controls{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:20px;
+  z-index:6;
+}
+
+/* Theme swatches */
+.theme-picker{
+  display:flex;align-items:center;gap:16px;
+}
+.theme-swatch{
+  width:30px;height:30px;border-radius:50%;cursor:pointer;
+  border:3px solid transparent;
+  transition:border-color .15s, transform .15s;
+  flex-shrink:0;
+  position:relative;
+}
+.theme-swatch.active{
+  border-color:#fff;
+  transform:scale(1.2);
+}
+.theme-swatch.active::after{
+  content:'✓';
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  font-size:13px;font-weight:800;color:#fff;
+}
+
+/* Shutter button — sits exactly on the seam */
+.shutter-wrap{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  z-index:20;
+}
+.snap-btn{
+  width:80px;height:80px;border-radius:50%;
+  border:none;
+  background:#fff;
+  cursor:pointer;
+  transition:transform .1s;
+  box-shadow:0 0 0 6px rgba(255,255,255,0.35), 0 4px 20px rgba(0,0,0,0.25);
+  position:relative;
+}
+.snap-btn:active{transform:scale(.9)}
+.snap-btn::after{
+  content:'';
+  position:absolute;inset:7px;
+  border-radius:50%;
+  border:3px solid rgba(0,0,0,0.12);
+}
+
+/* Side buttons flanking shutter */
+.cam-side-btn{
+  width:46px;height:46px;border-radius:50%;
+  background:rgba(255,255,255,.25);
+  border:2px solid rgba(255,255,255,.4);
+  color:#fff;font-size:18px;cursor:pointer;
+  display:grid;place-items:center;
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:20;
+}
+#upload-btn{ left: calc(50% - 96px); }
+#flip-side-btn{ right: calc(50% - 96px); }
+
+/* Top-bar overlay */
+.cam-bar{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;
+  z-index:5;
+}
+.cam-info{
+  font-size:13px;font-weight:600;
+  color:rgba(255,255,255,0.9);
+  text-shadow:0 1px 4px rgba(0,0,0,.5);
+}
+.cam-status{
+  font-size:12px;color:rgba(255,255,255,.8);
+  text-align:center;
+  text-shadow:0 1px 3px rgba(0,0,0,.4);
+}
+
+#file-input{display:none}
+
+/* ══════════════════════════════
+   WAITING SCREEN
+══════════════════════════════ */
+#scr-wait{justify-content:center;gap:16px;padding:32px}
+.wait-anim{font-size:52px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4;transform:scale(.95)}50%{opacity:1;transform:scale(1.05)}}
+.wait-title{font-size:18px;font-weight:600}
+.wait-sub{font-size:13px;color:#666;text-align:center}
+.wait-slots{display:flex;gap:10px;margin-top:4px}
+.wait-slot{
+  width:48px;height:48px;border-radius:12px;
+  background:#1a1a1a;display:flex;align-items:center;
+  justify-content:center;font-size:20px;
+}
+.wait-slot.done{background:#1a3a1a}
+
+/* ══════════════════════════════
+   RESULT SCREEN
+══════════════════════════════ */
+#scr-result{padding:0;justify-content:flex-start;position:relative}
+#result-canvas{width:100%;display:block;max-height:calc(100dvh - 80px);object-fit:contain}
+.result-actions{
+  position:fixed;bottom:0;left:0;right:0;
+  display:flex;gap:8px;padding:12px 14px 28px;
+  background:var(--dark);
+}
+.result-actions button{
+  flex:1;padding:14px;border:none;border-radius:14px;
+  font-size:14px;font-weight:600;cursor:pointer;
+  font-family:'Pretendard',sans-serif;
+}
+#btn-retake, #btn-retake-video { background:var(--dark2); color:#fff; }
+#btn-save, #btn-save-video     { background:var(--pink-btn); color:#fff; }
+#btn-share, #btn-share-video   { background:#fff; color:#000; }
+
+/* ══════════════════════════════
+   LOADING OVERLAY
+══════════════════════════════ */
+#loading{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.75);align-items:center;
+  justify-content:center;z-index:999;flex-direction:column;gap:14px;
+}
+#loading.show{display:flex}
+.spinner{
+  width:46px;height:46px;border:4px solid rgba(255,255,255,.15);
+  border-top-color:var(--pink);border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:14px;color:#aaa}
+
+/* misc */
+.divider{width:calc(100% - 40px);height:1px;background:#1a1a1a;margin:4px 0}
+
+/* ── 공통 뒤로가기 버튼 — 항상 상단 왼쪽 고정 ── */
+.back-bar{
+  position:absolute;
+  top:0; left:0; right:0;
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  z-index:10;
+  pointer-events:none;
+}
+.back-btn{
+  background:none;
+  border:none;
+  color:var(--text);
+  font-size:22px;
+  cursor:pointer;
+  padding:4px 8px;
+  line-height:1;
+  opacity:0.85;
+  pointer-events:all;
+  font-family:'Pretendard',sans-serif;
+}
+.back-btn:active{opacity:0.5}
+.back-label{
+  font-size:15px;
+  font-weight:600;
+  color:var(--text);
+  opacity:0.8;
+}
+
+/* ── Mode toggle ── */
+.mode-toggle{
+  display:flex;gap:4px;
+  background:rgba(0,0,0,0.18);
+  border-radius:20px;
+  padding:4px;
+}
+.mode-btn{
+  padding:6px 22px;
+  border:none;border-radius:16px;
+  font-size:13px;font-weight:600;
+  cursor:pointer;
+  background:transparent;
+  color:rgba(255,255,255,0.6);
+  font-family:'Pretendard',sans-serif;
+  transition:background .15s, color .15s;
+}
+.mode-btn.active{
+  background:rgba(255,255,255,0.92);
+  color:#111;
+}
+
+/* ── Recording state ── */
+.snap-btn.recording{
+  background:#ff3b30 !important;
+  box-shadow:0 0 0 6px rgba(255,59,48,0.35), 0 4px 20px rgba(0,0,0,0.25);
+  animation:rec-pulse 1.2s ease-in-out infinite;
+}
+@keyframes rec-pulse{
+  0%,100%{box-shadow:0 0 0 6px rgba(255,59,48,0.35), 0 4px 20px rgba(0,0,0,0.25)}
+  50%{box-shadow:0 0 0 10px rgba(255,59,48,0.15), 0 4px 20px rgba(0,0,0,0.25)}
+}
+.rec-timer{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-size:11px;font-weight:800;
+  color:#fff;letter-spacing:0.05em;
+  pointer-events:none;
+}
+
+/* ── Video result screen ── */
+#scr-result-video{padding:0;justify-content:flex-start;position:relative}
+#video-result-wrap{
+  position:relative;
+  width:100%;
+  height:calc(100dvh - 80px);
+}
+#result-video-bottom{
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:50%;
+}
+#result-video-overlay{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  z-index:3;
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ STAR DECORATIONS ══════════ -->
+<div id="app-container">
+<svg class="star-deco" style="top:10%;left:5%;width:60px;height:60px;" viewBox="0 0 60 60">
+  <polygon points="30,5 35,22 53,22 39,33 44,50 30,39 16,50 21,33 7,22 25,22" fill="#f472b6" opacity="0.9"/>
+</svg>
+<svg class="star-deco" style="top:15%;left:12%;width:36px;height:36px;" viewBox="0 0 60 60">
+  <polygon points="30,5 35,22 53,22 39,33 44,50 30,39 16,50 21,33 7,22 25,22" fill="#f472b6" opacity="0.9"/>
+</svg>
+<svg class="star-deco" style="top:22%;left:7%;width:44px;height:44px;" viewBox="0 0 60 60">
+  <polygon points="30,5 35,22 53,22 39,33 44,50 30,39 16,50 21,33 7,22 25,22" fill="#f472b6" opacity="0.9"/>
+</svg>
+<svg class="star-deco" style="top:32%;left:16%;width:28px;height:28px;" viewBox="0 0 60 60">
+  <polygon points="30,5 35,22 53,22 39,33 44,50 30,39 16,50 21,33 7,22 25,22" fill="#f472b6" opacity="0.8"/>
+</svg>
+<svg class="star-deco" style="top:28%;right:10%;width:44px;height:44px;" viewBox="0 0 60 60">
+  <polygon points="30,5 35,22 53,22 39,33 44,50 30,39 16,50 21,33 7,22 25,22" fill="#f472b6" opacity="0.9"/>
+</svg>
+<svg class="star-deco" style="top:42%;right:8%;width:56px;height:56px;" viewBox="0 0 60 60">
+  <polygon points="30,5 35,22 53,22 39,33 44,50 30,39 16,50 21,33 7,22 25,22" fill="#f472b6" opacity="0.9"/>
+</svg>
+<svg class="star-deco" style="top:8%;right:20%;width:22px;height:22px;" viewBox="0 0 60 60">
+  <polygon points="30,5 35,22 53,22 39,33 44,50 30,39 16,50 21,33 7,22 25,22" fill="#f472b6" opacity="0.7"/>
+</svg>
+
+<!-- ══════════ START ══════════ -->
+<div id="scr-start" class="screen active">
+  <div class="logo-title">Punch Card Photo</div>
+  <div style="width:100%;max-width:360px;display:flex;flex-direction:column">
+    <button class="menu-btn btn-solo" onclick="goSolo()">혼자 찍기</button>
+    <button class="menu-btn btn-host" onclick="goHostSendCode()">친구 초대하기</button>
+    <button class="menu-btn btn-join" onclick="goJoin()">코드 입력하기</button>
+  </div>
+</div>
+
+<!-- ══════════ SEND CODE (친구 초대 - 코드 보내기) ══════════ -->
+<div id="scr-sendcode" class="screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="goScreen('start')">←</button>
+    <span class="back-label">친구 초대</span>
+  </div>
+  <div class="sendcode-inner">
+    <div class="sendcode-title">Punch Card Photo</div>
+    <div class="code-input-wrap">
+      <div class="sendcode-field" id="sendcode-display">------</div>
+      <button class="sendcode-btn" onclick="copyAndShare()">코드 보내기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ HOST SETUP (친구 초대 - 대기방) ══════════ -->
+<div id="scr-host" class="screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="goScreen('start')">←</button>
+    <span class="back-label">친구 초대</span>
+  </div>
+  <div class="code-box">
+    <div class="code-label">이 코드를 친구에게 보내세요</div>
+    <div class="code-value" id="room-code-display">------</div>
+    <button class="code-copy" onclick="copyCode()">복사하기</button>
+  </div>
+
+  <div class="friends-list" id="friends-list">
+    <div class="friend-slot">
+      <div class="friend-dot me"></div>
+      <span style="color:var(--pink)">나 (방장)</span>
+    </div>
+    <div class="friend-slot" id="slot-1">
+      <div class="friend-dot" id="dot-1"></div>
+      <span id="slot-label-1">친구 기다리는 중...</span>
+    </div>
+    <div class="friend-slot" id="slot-2" style="display:none">
+      <div class="friend-dot" id="dot-2"></div>
+      <span id="slot-label-2">친구 기다리는 중...</span>
+    </div>
+    <div class="friend-slot" id="slot-3" style="display:none">
+      <div class="friend-dot" id="dot-3"></div>
+      <span id="slot-label-3">친구 기다리는 중...</span>
+    </div>
+  </div>
+
+  <div style="width:calc(100% - 40px);display:flex;gap:8px;margin:16px 0 0">
+    <button style="flex:1;padding:10px;background:#111;border:1px solid #333;color:#aaa;border-radius:12px;font-size:13px;cursor:pointer" onclick="setGroupSize(2)">2명</button>
+    <button style="flex:1;padding:10px;background:#111;border:1px solid #333;color:#aaa;border-radius:12px;font-size:13px;cursor:pointer" onclick="setGroupSize(3)">3명</button>
+    <button style="flex:1;padding:10px;background:#111;border:1px solid #333;color:#aaa;border-radius:12px;font-size:13px;cursor:pointer" onclick="setGroupSize(4)">4명</button>
+  </div>
+
+  <button class="start-btn" id="start-btn" onclick="hostStartShooting()">사진 찍기 시작!</button>
+  <div class="waiting-note" id="waiting-note">인원 수를 선택하고 친구가 참가하면 시작할 수 있어요</div>
+</div>
+
+<!-- ══════════ JOIN ══════════ -->
+<div id="scr-join" class="screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="goScreen('start')">←</button>
+    <span class="back-label">코드 입력</span>
+  </div>
+  <div class="join-inner">
+    <div class="join-title">Punch Card Photo</div>
+    <div class="code-input-wrap">
+      <input class="code-input" id="code-input" maxlength="6"
+        placeholder="코드 6자리 입력"
+        oninput="this.value=this.value.toUpperCase()"
+        onkeydown="if(event.key==='Enter')joinRoom()">
+      <button class="join-btn" onclick="joinRoom()">참가하기</button>
+      <div class="error-msg" id="join-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CAMERA ══════════ -->
+<div id="scr-camera" class="screen">
+
+  <!-- TOP HALF: selfie video -->
+  <div id="video-wrap">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="cam-overlay-top" style="position:absolute;top:0;left:0;pointer-events:none;z-index:4;"></canvas>
+    <div class="cam-bar back-bar">
+      <button class="back-btn" onclick="stopCamera();goScreen('start')">←</button>
+      <span class="cam-info" id="cam-info">내 차례</span>
+    </div>
+    <div class="cam-status" id="cam-status"></div>
+  </div>
+
+  <!-- BOTTOM HALF: theme colour -->
+  <div id="cam-bottom">
+    <canvas id="cam-overlay-bottom" style="position:absolute;top:0;left:0;pointer-events:none;z-index:4;"></canvas>
+    <div id="cam-controls">
+      <div class="mode-toggle">
+        <button id="mode-photo" class="mode-btn active" onclick="setCamMode('photo')">사진</button>
+        <button id="mode-video" class="mode-btn" onclick="setCamMode('video')">영상</button>
+      </div>
+      <div class="theme-picker">
+        <div class="theme-swatch active" id="sw-pink"   style="background:#f472b6" onclick="setTheme('pink')"></div>
+        <div class="theme-swatch"        id="sw-mint"   style="background:#8ee8cc" onclick="setTheme('mint')"></div>
+        <div class="theme-swatch"        id="sw-white"  style="background:#f0f0f0" onclick="setTheme('white')"></div>
+        <div class="theme-swatch"        id="sw-yellow" style="background:#FFFDA1" onclick="setTheme('yellow')"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHUTTER — pinned exactly on the seam -->
+  <div class="shutter-wrap">
+    <button class="snap-btn" id="snap-btn" onclick="handleShutter()"></button>
+  </div>
+
+  <!-- SIDE BUTTONS — also on the seam -->
+  <button id="upload-btn" class="cam-side-btn" onclick="document.getElementById('file-input').click()">🖼</button>
+  <button id="flip-side-btn" class="cam-side-btn" onclick="flipCamera()">⟳</button>
+
+  <input type="file" id="file-input" accept="image/*,video/*" onchange="uploadFile(event)">
+</div>
+
+<!-- ══════════ WAITING ══════════ -->
+<div id="scr-wait" class="screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="goScreen('start')">←</button>
+  </div>
+  <div class="wait-anim">⭐</div>
+  <div class="wait-title" id="wait-title">친구들 기다리는 중...</div>
+  <div class="wait-sub" id="wait-sub">모든 친구가 사진을 찍으면 자동으로 완성돼요</div>
+  <div class="wait-slots" id="wait-slots"></div>
+</div>
+
+<!-- ══════════ RESULT (사진) ══════════ -->
+<div id="scr-result" class="screen">
+  <canvas id="result-canvas"></canvas>
+  <div class="result-actions">
+    <button id="btn-retake" onclick="goScreen('start')">처음으로</button>
+    <button id="btn-save" onclick="savePhoto()">저장</button>
+    <button id="btn-share" onclick="sharePhoto()">공유</button>
+  </div>
+</div>
+
+<!-- ══════════ RESULT (영상) ══════════ -->
+<div id="scr-result-video" class="screen">
+  <div id="video-result-wrap">
+    <video id="result-video" loop autoplay playsinline style="position:absolute;top:0;left:0;width:100%;height:50%;object-fit:cover;"></video>
+    <canvas id="result-video-overlay"></canvas>
+    <div id="result-video-bottom"></div>
+  </div>
+  <div class="result-actions">
+    <button id="btn-retake-video" onclick="stopVideoResult();goScreen('start')">처음으로</button>
+    <button id="btn-save-video" onclick="saveVideo()">저장</button>
+    <button id="btn-share-video" onclick="shareVideo()">공유</button>
+  </div>
+</div>
+
+</div><!-- /#app-container -->
+
+<div id="loading"><div class="spinner"></div><div class="loading-txt" id="loading-txt">처리 중...</div></div>
+<canvas id="hidden-canvas" style="display:none"></canvas>
+
+<script>
+// ══════════════════════════════════════════
+// Themes
+// ══════════════════════════════════════════
+const THEMES = {
+  pink:   { bg: '#f472b6', starColor: '#f472b6', stickerAlpha: 0.90, dark: 'rgba(50,15,25,0.55)'   },
+  mint:   { bg: '#8ee8cc', starColor: '#8ee8cc', stickerAlpha: 0.88, dark: 'rgba(10,50,35,0.50)'   },
+  white:  { bg: '#f0f0f0', starColor: '#f0f0f0', stickerAlpha: 0.92, dark: 'rgba(180,180,180,0.60)' },
+  yellow: { bg: '#FFFDA1', starColor: '#FFFDA1', stickerAlpha: 0.90, dark: 'rgba(120,110,0,0.45)'  },
+};
+let currentTheme = 'pink';
+
+const THEME_COLORS = { pink: '#f472b6', mint: '#8ee8cc', white: '#f0f0f0', yellow: '#FFFDA1' };
+const THEME_STAR_COLORS = { pink: '#ec4899', mint: '#5dd4aa', white: '#ccc', yellow: '#FFFDA1' };
+
+function setTheme(name) {
+  currentTheme = name;
+  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+  document.getElementById('sw-' + name).classList.add('active');
+  const bottom = document.getElementById('cam-bottom');
+  if (bottom) {
+    bottom.style.background = THEME_COLORS[name];
+    drawCamStars(name);
+  }
+}
+
+// ══════════════════════════════════════════
+// SHARED STAR LAYOUT — used by both camera preview AND result render
+// [lx 0-1, ly 0-1, radius-fraction-of-W, rotation-rad]
+// ly is relative to each half (0=top of half, 1=bottom)
+// ══════════════════════════════════════════
+// ── 사진칸(위) 별 — 화면 전반에 고루 분포
+const STARS_TOP = [
+  [0.05, 0.08, 0.048, 0.3],
+  [0.88, 0.07, 0.040, 0.8],
+  [0.03, 0.80, 0.044, 0.5],
+  [0.90, 0.82, 0.038, 0.2],
+  [0.48, 0.06, 0.034, 0.1],
+  [0.96, 0.48, 0.032, 0.7],
+  [0.02, 0.46, 0.028, 0.9],
+  [0.25, 0.30, 0.030, 0.4],
+  [0.65, 0.25, 0.032, 0.6],
+  [0.40, 0.68, 0.028, 0.2],
+  [0.75, 0.62, 0.030, 0.5],
+  [0.18, 0.55, 0.026, 0.8],
+  [0.55, 0.45, 0.024, 0.3],
+  [0.35, 0.15, 0.028, 0.6],
+  [0.80, 0.38, 0.026, 0.1],
+];
+
+// ── 테마칸(아래) 별 — 많고 조금 더 크게
+const STARS_BOT = [
+  [0.04, 0.08, 0.072, 0.3],
+  [0.92, 0.06, 0.064, 0.8],
+  [0.02, 0.85, 0.070, 0.5],
+  [0.93, 0.90, 0.062, 0.2],
+  [0.97, 0.45, 0.058, 0.7],
+  [0.01, 0.52, 0.054, 0.9],
+  [0.48, 0.03, 0.056, 0.0],
+  [0.75, 0.05, 0.050, 0.4],
+  [0.20, 0.92, 0.058, 0.6],
+  [0.72, 0.94, 0.052, 0.1],
+  [0.30, 0.35, 0.042, 0.4],
+  [0.60, 0.28, 0.040, 0.8],
+  [0.45, 0.65, 0.044, 0.1],
+  [0.70, 0.58, 0.042, 0.6],
+  [0.15, 0.55, 0.038, 0.3],
+  [0.83, 0.72, 0.046, 0.5],
+  [0.55, 0.82, 0.040, 0.2],
+  [0.25, 0.18, 0.038, 0.7],
+  [0.88, 0.30, 0.044, 0.4],
+  [0.38, 0.75, 0.040, 0.9],
+];
+
+function starDraw(ctx, cx, cy, r, rot) {
+  const ir = r * 0.42;
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = i * Math.PI / 5 - Math.PI / 2 + rot;
+    const d = i % 2 === 0 ? r : ir;
+    i === 0 ? ctx.moveTo(cx + d*Math.cos(a), cy + d*Math.sin(a))
+            : ctx.lineTo(cx + d*Math.cos(a), cy + d*Math.sin(a));
+  }
+  ctx.closePath();
+}
+
+// Two separate canvases — one per half, clipped by overflow:hidden on parent
+let camRafId = null;
+
+function drawCamStars(theme) {
+  if (camRafId) { cancelAnimationFrame(camRafId); camRafId = null; }
+
+  const video   = document.getElementById('video');
+  const cvTop   = document.getElementById('cam-overlay-top');
+  const cvBot   = document.getElementById('cam-overlay-bottom');
+  const topWrap = document.getElementById('video-wrap');
+  const botWrap = document.getElementById('cam-bottom');
+  if (!cvTop || !cvBot) return;
+
+  const starColor = THEMES[theme]?.starColor || '#f472b6';
+
+  function frame() {
+    const W    = topWrap.offsetWidth;
+    const HALF = topWrap.offsetHeight;
+
+    // resize each canvas to exactly its half
+    if (cvTop.width !== W || cvTop.height !== HALF) { cvTop.width = W; cvTop.height = HALF; }
+    if (cvBot.width !== W || cvBot.height !== HALF) { cvBot.width = W; cvBot.height = HALF; }
+
+    // ── TOP canvas: solid theme-colour stars ──
+    const ctxT = cvTop.getContext('2d');
+    ctxT.clearRect(0, 0, W, HALF);
+    STARS_TOP.forEach(([lx, ly, sr, rot]) => {
+      ctxT.save();
+      starDraw(ctxT, lx * W, ly * HALF, sr * W, rot);
+      ctxT.fillStyle = starColor;
+      ctxT.globalAlpha = 0.88;
+      ctxT.fill();
+      ctxT.restore();
+    });
+    ctxT.globalAlpha = 1;
+
+    // ── BOTTOM canvas: video clipped into stars ──
+    const ctxB = cvBot.getContext('2d');
+    ctxB.clearRect(0, 0, W, HALF);
+
+    if (video.readyState >= 2) {
+      const vw    = video.videoWidth;
+      const vh    = video.videoHeight;
+      const scale = Math.max(W / vw, HALF / vh);
+      const dw    = vw * scale;
+      const dh    = vh * scale;
+      const ox    = (W - dw) / 2;
+      const oy    = (HALF - dh) / 2;
+
+      STARS_BOT.forEach(([lx, ly, sr, rot]) => {
+        const cx = lx * W;
+        const cy = ly * HALF;
+        const r  = sr * W;
+        ctxB.save();
+        starDraw(ctxB, cx, cy, r, rot);
+        ctxB.clip();
+        if (facingMode === 'user') { ctxB.translate(W, 0); ctxB.scale(-1, 1); }
+        ctxB.drawImage(video, ox, oy, dw, dh);
+        ctxB.restore();
+      });
+    }
+
+    camRafId = requestAnimationFrame(frame);
+  }
+
+  frame();
+}
+
+function stopCamStars() {
+  if (camRafId) { cancelAnimationFrame(camRafId); camRafId = null; }
+}
+
+let mode = 'solo';
+let groupSize = 2;
+let myIndex = 0;
+let peer = null;
+let connections = [];
+let collectedPhotos = {};
+let myPhoto = null;
+let facingMode = 'environment';
+let cameraStream = null;
+
+// ══════════════════════════════════════════
+// Screen routing
+// ══════════════════════════════════════════
+function goScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('scr-' + name).classList.add('active');
+  if (name !== 'camera') stopCamera();
+}
+
+function goSolo() {
+  mode = 'solo'; groupSize = 1; myIndex = 0;
+  startCamera(true);
+  goScreen('camera');
+  document.getElementById('cam-info').textContent = '혼자 찍기';
+  setTimeout(() => drawCamStars(currentTheme), 50);
+}
+
+// ══════════════════════════════════════════
+// HOST SEND CODE flow (친구 초대하기 → 코드 보내기 화면)
+// ══════════════════════════════════════════
+function goHostSendCode() {
+  mode = 'host';
+  connections = [];
+  collectedPhotos = {};
+  groupSize = 2;
+  myIndex = 0;
+
+  const code = Math.random().toString(36).substr(2, 6).toUpperCase();
+  document.getElementById('sendcode-display').textContent = code;
+  document.getElementById('room-code-display').textContent = code;
+
+  goScreen('sendcode');
+
+  // Start peer with the code
+  peer = new Peer(code, { debug: 0 });
+  peer.on('open', () => {});
+  peer.on('connection', conn => {
+    const idx = connections.length + 1;
+    connections.push(conn);
+    updateHostSlots();
+    conn.on('open', () => {
+      conn.send(JSON.stringify({ type: 'welcome', index: idx, total: groupSize }));
+    });
+    conn.on('data', data => {
+      const msg = JSON.parse(data);
+      if (msg.type === 'photo') {
+        collectedPhotos[msg.index] = msg.data;
+        updateWaitSlots();
+        checkAllPhotos();
+      }
+    });
+    conn.on('close', () => {
+      connections = connections.filter(c => c !== conn);
+      updateHostSlots();
+    });
+  });
+}
+
+function copyAndShare() {
+  const code = document.getElementById('sendcode-display').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.sendcode-btn');
+    btn.textContent = '복사됨 ✓';
+    setTimeout(() => { btn.textContent = '코드 보내기'; }, 2000);
+  });
+  // Go to host waiting room after
+  setTimeout(() => {
+    updateStartBtn();
+    goScreen('host');
+  }, 300);
+}
+
+// ══════════════════════════════════════════
+// HOST flow
+// ══════════════════════════════════════════
+function goHost() {
+  goScreen('host');
+}
+
+function setGroupSize(n) {
+  groupSize = n;
+  for (let i = 1; i <= 3; i++) {
+    const slot = document.getElementById('slot-' + i);
+    if (i < n) slot.style.display = 'flex';
+    else slot.style.display = 'none';
+  }
+  updateHostSlots();
+  updateStartBtn();
+}
+
+function updateHostSlots() {
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById('dot-' + i);
+    const label = document.getElementById('slot-label-' + i);
+    if (!dot) continue;
+    if (connections[i - 1]) {
+      dot.className = 'friend-dot on';
+      label.textContent = '친구 ' + i + ' 참가 완료 ✓';
+      label.style.color = '#a0f5c0';
+    } else {
+      dot.className = 'friend-dot';
+      label.textContent = '친구 기다리는 중...';
+      label.style.color = '#666';
+    }
+  }
+  updateStartBtn();
+}
+
+function updateStartBtn() {
+  const needed = groupSize - 1;
+  const have = connections.length;
+  const btn = document.getElementById('start-btn');
+  const note = document.getElementById('waiting-note');
+  if (have >= needed && groupSize > 1) {
+    btn.classList.add('ready');
+    note.textContent = `${groupSize}명 모두 참가! 시작 버튼을 눌러주세요`;
+  } else if (groupSize === 1) {
+    btn.classList.add('ready');
+    note.textContent = '혼자 찍으려면 "혼자 찍기"를 이용하세요';
+  } else {
+    btn.classList.remove('ready');
+    note.textContent = `${have}/${needed} 명 참가 중... 친구를 기다리는 중이에요`;
+  }
+}
+
+function hostStartShooting() {
+  connections.forEach((conn, i) => {
+    conn.send(JSON.stringify({ type: 'start', index: i + 1, total: groupSize }));
+  });
+  collectedPhotos = {};
+  startCamera(false);
+  goScreen('camera');
+  document.getElementById('cam-info').textContent = `내 차례 (${groupSize}명 중 방장)`;
+  showWaitSlots();
+  setTimeout(() => drawCamStars(currentTheme), 50);
+}
+
+// ══════════════════════════════════════════
+// GUEST flow
+// ══════════════════════════════════════════
+function goJoin() {
+  mode = 'guest';
+  goScreen('join');
+}
+
+function joinRoom() {
+  const code = document.getElementById('code-input').value.trim().toUpperCase();
+  if (code.length < 4) {
+    document.getElementById('join-error').textContent = '코드를 올바르게 입력하세요';
+    return;
+  }
+  document.getElementById('join-error').textContent = '';
+  showLoading('방에 연결 중...');
+
+  peer = new Peer({ debug: 0 });
+  peer.on('open', () => {
+    const conn = peer.connect(code);
+    connections = [conn];
+    let connected = false;
+    const timeout = setTimeout(() => {
+      if (!connected) {
+        hideLoading();
+        document.getElementById('join-error').textContent = '연결 실패. 코드를 확인해주세요';
+      }
+    }, 8000);
+
+    conn.on('open', () => {
+      connected = true;
+      clearTimeout(timeout);
+      hideLoading();
+    });
+    conn.on('data', data => {
+      const msg = JSON.parse(data);
+      if (msg.type === 'welcome') {
+        myIndex = msg.index;
+        groupSize = msg.total;
+        goScreen('wait');
+        document.getElementById('wait-title').textContent = '방장이 시작할 때까지 기다려요';
+        document.getElementById('wait-sub').textContent = '방장이 시작 버튼을 누르면 카메라가 열려요';
+      }
+      if (msg.type === 'start') {
+        myIndex = msg.index;
+        groupSize = msg.total;
+        collectedPhotos = {};
+        startCamera(false);
+        goScreen('camera');
+        document.getElementById('cam-info').textContent = `내 차례 (${groupSize}명 중 ${myIndex + 1}번째)`;
+        showWaitSlots();
+      }
+      if (msg.type === 'render') {
+        hideLoading();
+        renderStarGrid(msg.photos);
+      }
+    });
+    conn.on('close', () => {
+      hideLoading();
+      alert('연결이 끊겼어요');
+      goScreen('start');
+    });
+  });
+  peer.on('error', e => {
+    hideLoading();
+    document.getElementById('join-error').textContent = '연결 오류: ' + e.type;
+  });
+}
+
+// ══════════════════════════════════════════
+// Camera
+// ══════════════════════════════════════════
+async function startCamera(selfie) {
+  stopCamera();
+  facingMode = selfie ? 'user' : 'environment';
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: 16/9 },
+      audio: false
+    });
+    const video = document.getElementById('video');
+    video.srcObject = cameraStream;
+    video.style.transform = facingMode === 'user' ? 'scaleX(-1)' : '';
+  } catch (e) {
+    document.getElementById('cam-status').textContent = '카메라 접근 불가 — 갤러리에서 선택하세요';
+  }
+}
+
+function stopCamera() {
+  stopCamStars();
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+}
+
+function flipCamera() {
+  facingMode = facingMode === 'user' ? 'environment' : 'user';
+  startCamera(facingMode === 'user');
+}
+
+function snapPhoto() {
+  const video = document.getElementById('video');
+  const hc = document.getElementById('hidden-canvas');
+  const vw = video.videoWidth  || 1280;
+  const vh = video.videoHeight || 720;
+  hc.width  = vw;
+  hc.height = vh;
+  const ctx = hc.getContext('2d');
+  ctx.save();
+  if (facingMode === 'user') { ctx.translate(vw, 0); ctx.scale(-1, 1); }
+  ctx.drawImage(video, 0, 0, vw, vh);
+  ctx.restore();
+  const jpeg = hc.toDataURL('image/jpeg', 0.95);
+  handlePhotoTaken(jpeg);
+}
+
+function uploadFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.type.startsWith('video/')) {
+    recordedBlob = file;
+    showVideoResult();
+    return;
+  }
+  // image
+  const img = new Image();
+  img.onload = () => {
+    const hc = document.getElementById('hidden-canvas');
+    hc.width = img.naturalWidth; hc.height = img.naturalHeight;
+    hc.getContext('2d').drawImage(img, 0, 0);
+    handlePhotoTaken(hc.toDataURL('image/jpeg', 0.82));
+  };
+  img.src = URL.createObjectURL(file);
+}
+
+function handlePhotoTaken(jpeg) {
+  myPhoto = jpeg;
+  collectedPhotos[myIndex] = jpeg;
+  stopCamera();
+
+  if (mode === 'solo') {
+    renderStarGrid([jpeg]);
+    return;
+  }
+
+  if (mode === 'guest') {
+    connections[0].send(JSON.stringify({ type: 'photo', index: myIndex, data: jpeg }));
+    goScreen('wait');
+    document.getElementById('wait-title').textContent = '친구들 기다리는 중...';
+    document.getElementById('wait-sub').textContent = '모두 찍으면 자동으로 완성돼요';
+    updateWaitSlots();
+  } else if (mode === 'host') {
+    goScreen('wait');
+    document.getElementById('wait-title').textContent = '친구들 기다리는 중...';
+    updateWaitSlots();
+    checkAllPhotos();
+  }
+}
+
+// ── Cam mode: 'photo' | 'video' ──
+let camMode = 'photo';
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordedBlob = null;
+let recTimerInterval = null;
+let recSeconds = 0;
+let videoResultRafId = null;
+
+function setCamMode(m) {
+  camMode = m;
+  document.getElementById('mode-photo').classList.toggle('active', m === 'photo');
+  document.getElementById('mode-video').classList.toggle('active', m === 'video');
+  // reset recording state if switching
+  if (m === 'photo') {
+    stopRecording(false);
+    document.getElementById('snap-btn').classList.remove('recording');
+    document.getElementById('snap-btn').innerHTML = '';
+  }
+}
+
+function handleShutter() {
+  if (camMode === 'photo') {
+    snapPhoto();
+  } else {
+    if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+      startRecording();
+    } else {
+      stopRecording(true);
+    }
+  }
+}
+
+function startRecording() {
+  if (!cameraStream) return;
+  recordedChunks = [];
+  recSeconds = 0;
+
+  // mp4 먼저 시도 (Safari/iOS), 안되면 webm
+  const mimeType =
+    MediaRecorder.isTypeSupported('video/mp4;codecs=avc1') ? 'video/mp4;codecs=avc1' :
+    MediaRecorder.isTypeSupported('video/mp4')             ? 'video/mp4'             :
+    MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' :
+                                                              'video/webm';
+
+  mediaRecorder = new MediaRecorder(cameraStream, { mimeType });
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.onstop = () => {
+    recordedBlob = new Blob(recordedChunks, { type: mimeType });
+    showVideoResult();
+  };
+  mediaRecorder.start(100);
+
+  const btn = document.getElementById('snap-btn');
+  btn.classList.add('recording');
+
+  // Timer display
+  const timer = document.createElement('span');
+  timer.className = 'rec-timer';
+  timer.id = 'rec-timer';
+  timer.textContent = '0:00';
+  btn.appendChild(timer);
+
+  recTimerInterval = setInterval(() => {
+    recSeconds++;
+    const m = Math.floor(recSeconds / 60);
+    const s = String(recSeconds % 60).padStart(2, '0');
+    const t = document.getElementById('rec-timer');
+    if (t) t.textContent = `${m}:${s}`;
+  }, 1000);
+
+  document.getElementById('cam-status').textContent = '● 녹화 중';
+}
+
+function stopRecording(save) {
+  if (recTimerInterval) { clearInterval(recTimerInterval); recTimerInterval = null; }
+  const btn = document.getElementById('snap-btn');
+  btn.classList.remove('recording');
+  btn.innerHTML = '';
+  document.getElementById('cam-status').textContent = '';
+
+  if (save && mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  } else {
+    recordedChunks = [];
+    mediaRecorder = null;
+  }
+}
+
+function showVideoResult() {
+  const url = URL.createObjectURL(recordedBlob);
+  const rv  = document.getElementById('result-video');
+  rv.src = url;
+  rv.muted = false;
+  rv.play();
+
+  // Theme bottom colour
+  const bottom = document.getElementById('result-video-bottom');
+  bottom.style.background = THEMES[currentTheme].bg;
+
+  // Draw stars overlay on the video result (static, same STARS layout)
+  const wrap   = document.getElementById('video-result-wrap');
+  const ov     = document.getElementById('result-video-overlay');
+  const theme  = THEMES[currentTheme];
+
+  function drawOverlay() {
+    const W    = wrap.offsetWidth;
+    const H    = wrap.offsetHeight;
+    const HALF = Math.round(H / 2);
+    if (ov.width !== W || ov.height !== H) { ov.width = W; ov.height = H; }
+
+    const ctx = ov.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+
+    // TOP HALF stars (solid)
+    STARS_TOP.forEach(([lx, ly, sr, rot]) => {
+      ctx.save();
+      starDraw(ctx, lx*W, ly*HALF, sr*W, rot);
+      ctx.fillStyle = theme.starColor;
+      ctx.globalAlpha = 0.88;
+      ctx.fill();
+      ctx.restore();
+    });
+    ctx.globalAlpha = 1;
+
+    // BOTTOM HALF stars — clip the live result-video frame
+    if (rv.readyState >= 2) {
+      const vw = rv.videoWidth, vh = rv.videoHeight;
+      const scale = Math.max(W / vw, HALF / vh);
+      const dw = vw * scale, dh = vh * scale;
+      const ox = (W - dw) / 2, oy = (HALF - dh) / 2;
+
+      STARS_BOT.forEach(([lx, ly, sr, rot]) => {
+        const cx = lx * W;
+        const cy = HALF + ly * HALF;
+        const r  = sr * W;
+        ctx.save();
+        starDraw(ctx, cx, cy, r, rot);
+        ctx.clip();
+        ctx.translate(0, HALF);
+        ctx.drawImage(rv, ox, oy, dw, dh);
+        ctx.restore();
+      });
+    }
+
+    videoResultRafId = requestAnimationFrame(drawOverlay);
+  }
+
+  drawOverlay();
+  stopCamera();
+  goScreen('result-video');
+}
+
+function stopVideoResult() {
+  if (videoResultRafId) { cancelAnimationFrame(videoResultRafId); videoResultRafId = null; }
+  const rv = document.getElementById('result-video');
+  rv.pause();
+  if (rv.src) { URL.revokeObjectURL(rv.src); rv.src = ''; }
+}
+
+function shareVideo() {
+  if (!recordedBlob) return;
+  const ext  = recordedBlob.type.includes('mp4') ? 'mp4' : 'webm';
+  const file = new File([recordedBlob], `punch-card-video.${ext}`, { type: recordedBlob.type });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file], title: 'Punch Card Photo' }).catch(() => {});
+    return;
+  }
+  const url = URL.createObjectURL(recordedBlob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `punch-card-video.${ext}`; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+}
+function showWaitSlots() {
+  const wrap = document.getElementById('wait-slots');
+  wrap.innerHTML = '';
+  for (let i = 0; i < groupSize; i++) {
+    const div = document.createElement('div');
+    div.className = 'wait-slot';
+    div.id = 'ws-' + i;
+    div.textContent = i === myIndex ? '📷' : '⏳';
+    wrap.appendChild(div);
+  }
+}
+
+function updateWaitSlots() {
+  for (let i = 0; i < groupSize; i++) {
+    const el = document.getElementById('ws-' + i);
+    if (!el) continue;
+    if (collectedPhotos[i]) {
+      el.textContent = '✅';
+      el.classList.add('done');
+    }
+  }
+}
+
+function checkAllPhotos() {
+  const needed = groupSize;
+  const have = Object.keys(collectedPhotos).length;
+  if (have < needed) return;
+
+  const ordered = [];
+  for (let i = 0; i < groupSize; i++) ordered.push(collectedPhotos[i]);
+
+  connections.forEach(conn => {
+    conn.send(JSON.stringify({ type: 'render', photos: ordered }));
+  });
+
+  showLoading('별 사진 만드는 중...');
+  setTimeout(() => renderStarGrid(ordered), 100);
+}
+
+// ══════════════════════════════════════════
+// STAR RENDERING
+// ══════════════════════════════════════════
+function starPath(ctx, cx, cy, r, ir, pts = 5) {
+  const step = Math.PI / pts;
+  ctx.beginPath();
+  for (let i = 0; i < pts * 2; i++) {
+    const a = i * step - Math.PI / 2;
+    const d = i % 2 === 0 ? r : ir;
+    i === 0 ? ctx.moveTo(cx + d * Math.cos(a), cy + d * Math.sin(a))
+             : ctx.lineTo(cx + d * Math.cos(a), cy + d * Math.sin(a));
+  }
+  ctx.closePath();
+}
+
+function seededRng(seed) {
+  let s = seed | 0;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+
+function getLayout(n, cellW, cellH) {
+  if (n === 1) return [{ x: 0, y: 0, w: cellW * 2, h: cellH }];
+  if (n === 2) return [
+    { x: 0,      y: 0, w: cellW, h: cellH },
+    { x: cellW,  y: 0, w: cellW, h: cellH },
+  ];
+  if (n === 3) return [
+    { x: 0,        y: 0,      w: cellW, h: cellH },
+    { x: cellW,    y: 0,      w: cellW, h: cellH },
+    { x: cellW/2,  y: cellH,  w: cellW, h: cellH },
+  ];
+  return [
+    { x: 0,     y: 0,      w: cellW, h: cellH },
+    { x: cellW, y: 0,      w: cellW, h: cellH },
+    { x: 0,     y: cellH,  w: cellW, h: cellH },
+    { x: cellW, y: cellH,  w: cellW, h: cellH },
+  ];
+}
+
+async function renderStarGrid(photos) {
+  showLoading('별 사진 만드는 중...');
+  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 30)));
+
+  const imgs = await Promise.all(photos.map(src => new Promise((res, rej) => {
+    const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src;
+  })));
+
+  const n = imgs.length;
+
+  // 캔버스 너비 = 사진들 중 최대 가로 합산 (원본 해상도 유지)
+  // 사진이 여러 장이면 각 cellW = 전체 W / n
+  const photoW = Math.max(...imgs.map(img => img.width));
+  const photoH = Math.max(...imgs.map(img => img.height));
+
+  // 총 너비: 사진 한 장 너비 기준 (여러 장이면 같은 너비로 나란히)
+  const W    = photoW * n;
+  const HALF = photoH; // top half height = 사진 원본 높이
+  const H    = HALF * 2;
+
+  const canvas = document.getElementById('result-canvas');
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const theme = THEMES[currentTheme];
+  const cellW = W / n;
+
+  // ── 1. Build offscreen top-half composite (same as what camera showed) ──
+  const topC = document.createElement('canvas');
+  topC.width  = W;
+  topC.height = HALF;
+  const tc = topC.getContext('2d');
+
+  imgs.forEach((img, i) => {
+    const dx = i * cellW, dy = 0, dw = cellW, dh = HALF;
+    const scale = Math.max(dw / img.width, dh / img.height);
+    const sw = dw / scale, sh = dh / scale;
+    const sx = (img.width  - sw) / 2;
+    const sy = (img.height - sh) / 2;
+    tc.save();
+    tc.beginPath(); tc.rect(dx, dy, dw, dh); tc.clip();
+    tc.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+    tc.restore();
+  });
+
+  // ── 2. Draw top half ──
+  ctx.drawImage(topC, 0, 0);
+
+  // ── 3. TOP HALF: stars (적게)
+  STARS_TOP.forEach(([lx, ly, sr, rot]) => {
+    const cx = lx * W;
+    const cy = ly * HALF;
+    const r  = sr * W;
+    ctx.save();
+    starDraw(ctx, cx, cy, r, rot);
+    ctx.fillStyle = theme.starColor;
+    ctx.globalAlpha = 0.88;
+    ctx.fill();
+    ctx.restore();
+  });
+  ctx.globalAlpha = 1;
+
+  // ── 4. BOTTOM HALF: theme colour ──
+  ctx.fillStyle = theme.bg;
+  ctx.fillRect(0, HALF, W, HALF);
+
+  // ── 5. BOTTOM HALF: stars clipping photo (많게) ──
+  STARS_BOT.forEach(([lx, ly, sr, rot]) => {
+    const cx   = lx * W;
+    const cy   = HALF + ly * HALF;
+    const r    = sr * W;
+    const srcY = ly * HALF;
+    ctx.save();
+    starDraw(ctx, cx, cy, r, rot);
+    ctx.clip();
+    ctx.drawImage(topC, 0, cy - srcY, W, HALF);
+    ctx.restore();
+  });
+
+  hideLoading();
+  goScreen('result');
+}
+
+// ══════════════════════════════════════════
+// Save & Share
+// ══════════════════════════════════════════
+function savePhoto() {
+  const canvas = document.getElementById('result-canvas');
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/jpeg', 0.95);
+  a.download = `punch-card-${Date.now()}.jpg`;
+  a.click();
+}
+
+function sharePhoto() {
+  const canvas = document.getElementById('result-canvas');
+  canvas.toBlob(async blob => {
+    const file = new File([blob], 'punch-card-photo.jpg', { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'Punch Card Photo' }); return; }
+      catch (e) { if (e.name === 'AbortError') return; }
+    }
+    // fallback: save
+    savePhoto();
+  }, 'image/jpeg', 0.95);
+}
+
+function saveVideo() {
+  if (!recordedBlob) return;
+
+  showLoading('테마 합성 중...');
+
+  const rv    = document.getElementById('result-video');
+  const wrap  = document.getElementById('video-result-wrap');
+  const theme = THEMES[currentTheme];
+
+  // 화면에 보이는 크기 그대로 (DPR 적용)
+  const DPR  = window.devicePixelRatio || 1;
+  const W    = Math.round(wrap.offsetWidth  * DPR);
+  const H    = Math.round(wrap.offsetHeight * DPR);
+  const HALF = Math.round(H / 2);
+
+  const oc  = document.createElement('canvas');
+  oc.width  = W;
+  oc.height = H;
+  const ctx = oc.getContext('2d');
+
+  function drawCompositeFrame() {
+    if (rv.readyState < 2) return;
+
+    const vs  = Math.max(W / rv.videoWidth, HALF / rv.videoHeight);
+    const vdw = rv.videoWidth  * vs;
+    const vdh = rv.videoHeight * vs;
+    const vox = (W    - vdw) / 2;
+    const voy = (HALF - vdh) / 2;
+
+    // ── 위 절반: 영상 cover-fit ──
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, W, HALF); ctx.clip();
+    ctx.drawImage(rv, vox, voy, vdw, vdh);
+    ctx.restore();
+
+    // ── 위 절반: 별 ──
+    STARS_TOP.forEach(([lx, ly, sr, rot]) => {
+      ctx.save();
+      starDraw(ctx, lx*W, ly*HALF, sr*W, rot);
+      ctx.fillStyle = theme.starColor; ctx.globalAlpha = 0.88; ctx.fill();
+      ctx.restore();
+    });
+    ctx.globalAlpha = 1;
+
+    // ── 아래 절반: 테마색 ──
+    ctx.fillStyle = theme.bg;
+    ctx.fillRect(0, HALF, W, HALF);
+
+    // ── 아래 절반: 별에 영상 클립 ──
+    // 별의 (cx, cy)에서 위 영상의 같은 상대 위치(ly)가 보여야 함
+    // drawImage 시 ctx.translate(0, HALF) 하면 video의 좌표가 아래로 HALF 내려가서
+    // 아래 half의 (cx, cy) 위치에 위 영상의 (cx, cy-HALF) 픽셀이 보임
+    STARS_BOT.forEach(([lx, ly, sr, rot]) => {
+      const cx = lx*W;
+      const cy = HALF + ly*HALF;
+      const r  = sr*W;
+      ctx.save();
+      starDraw(ctx, cx, cy, r, rot);
+      ctx.clip();
+      ctx.translate(0, HALF);
+      ctx.drawImage(rv, vox, voy, vdw, vdh);
+      ctx.restore();
+    });
+  }
+
+  const stream  = oc.captureStream(30);
+  // mp4 먼저 시도, 안되면 webm (파일명은 항상 .mp4)
+  const mimeOut =
+    MediaRecorder.isTypeSupported('video/mp4;codecs=avc1') ? 'video/mp4;codecs=avc1' :
+    MediaRecorder.isTypeSupported('video/mp4')             ? 'video/mp4'             :
+    MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' :
+                                                              'video/webm';
+
+  const chunks = [];
+  const mr = new MediaRecorder(stream, { mimeType: mimeOut, videoBitsPerSecond: 12_000_000 });
+  mr.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+  mr.onstop = () => {
+    const blob = new Blob(chunks, { type: mimeOut });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    // webm이더라도 .mp4 확장자로 저장 — iOS/macOS/Windows에서 재생 가능
+    a.href = url;
+    a.download = `punch-card-${Date.now()}.mp4`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    hideLoading();
+    cancelAnimationFrame(rafLoop);
+  };
+
+  rv.currentTime = 0;
+  rv.muted = true;
+  rv.play();
+  mr.start(100);
+
+  let rafLoop;
+  const duration  = (rv.duration || 5) * 1000;
+  const startTime = performance.now();
+
+  function loop(now) {
+    drawCompositeFrame();
+    if (now - startTime < duration) {
+      rafLoop = requestAnimationFrame(loop);
+    } else {
+      mr.stop();
+      rv.muted = false;
+    }
+  }
+  rafLoop = requestAnimationFrame(loop);
+}
+
+function shareVideo() {
+  if (!recordedBlob) return;
+  const ext  = recordedBlob.type.includes('mp4') ? 'mp4' : 'webm';
+  const file = new File([recordedBlob], `punch-card-video.${ext}`, { type: recordedBlob.type });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({ files: [file], title: 'Punch Card Photo' }).catch(() => saveVideo());
+    return;
+  }
+  saveVideo();
+}
+
+// ══════════════════════════════════════════
+// Util
+// ══════════════════════════════════════════
+function copyCode() {
+  const code = document.getElementById('room-code-display').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.code-copy');
+    btn.textContent = '복사됨 ✓'; btn.style.color = '#a0f5c0';
+    setTimeout(() => { btn.textContent = '복사하기'; btn.style.color = ''; }, 2000);
+  });
+}
+
+function showLoading(txt = '처리 중...') {
+  document.getElementById('loading-txt').textContent = txt;
+  document.getElementById('loading').classList.add('show');
+}
+function hideLoading() { document.getElementById('loading').classList.remove('show'); }
+
+window.addEventListener('beforeunload', () => { if (peer) peer.destroy(); });
+</script>
+</body>
+</html>
