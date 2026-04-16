@@ -2070,18 +2070,22 @@
               dh = vh * scale;
             const ox = (W - dw) / 2,
               oy = (HALF - dh) / 2;
-
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(0, HALF, W, HALF); // 아래 절반 영역만 허용
+            ctx.clip();
             STARS_BOT.forEach(([lx, ly, sr, rot]) => {
               const cx = lx * W;
               const cy = HALF + ly * HALF;
               const r = sr * W;
+              const srcY = ly * HALF;
               ctx.save();
               starDraw(ctx, cx, cy, r, rot);
               ctx.clip();
-              ctx.translate(0, HALF);
-              ctx.drawImage(rv, ox, oy, dw, dh);
+              ctx.drawImage(topC, 0, cy - srcY, W, HALF);
               ctx.restore();
             });
+            ctx.restore();
           }
 
           videoResultRafId = requestAnimationFrame(drawOverlay);
