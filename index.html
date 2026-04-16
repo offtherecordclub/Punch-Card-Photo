@@ -240,11 +240,21 @@
         margin-top: 12px;
         text-align: center;
       }
+      #upload-btn {
+        left: calc(50% - 100px);
+      }
+      #flip-btn {
+        display: none;
+        right: calc(50% - 100px);
+      }
 
       @media (max-width: 600px) {
         .star-deco {
           transform: scale(0.5);
           transform-origin: top left;
+        }
+        #flip-btn {
+          display: grid;
         }
       }
 
@@ -1231,6 +1241,11 @@
           onclick="document.getElementById('file-input').click()"
         >
           <img src="icon/Image.svg" width="24" height="24" />
+        </button>
+
+        <!-- 여기에 추가 ↓ -->
+        <button id="flip-btn" class="cam-side-btn" onclick="flipCamera()">
+          <img src="icon/Flip.svg" width="24" height="24" />
         </button>
 
         <input
