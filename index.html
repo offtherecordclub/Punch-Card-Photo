@@ -1508,8 +1508,8 @@
               ctxB.clip();
               // 이렇게 유지
               if (facingMode === "user") {
-                ctx.translate(vw, 0);
-                ctx.scale(-1, 1);
+                ctxB.translate(W, 0); // ✅ ctxB 로 변경
+                ctxB.scale(-1, 1); // ✅
               }
               ctxB.drawImage(video, ox, oy, dw, dh);
               ctxB.restore();
