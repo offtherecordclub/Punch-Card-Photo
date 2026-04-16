@@ -2229,7 +2229,7 @@
         // 총 너비: 사진 한 장 너비 기준 (여러 장이면 같은 너비로 나란히)
         const W = photoW * n;
         const cellW = W / n; // ✅ 먼저 선언
-        const HALF = Math.round((cellW * 9) / 16);
+        const HALF = Math.max(...imgs.map((img) => img.height));
         const H = HALF * 2;
 
         const canvas = document.getElementById("result-canvas");
