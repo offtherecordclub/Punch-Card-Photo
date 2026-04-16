@@ -241,6 +241,13 @@
         text-align: center;
       }
 
+      @media (max-width: 600px) {
+        .star-deco {
+          transform: scale(0.5);
+          transform-origin: top left;
+        }
+      }
+
       /* ══════════════════════════════
    JOIN SCREEN
 ══════════════════════════════ */
@@ -635,8 +642,8 @@
       }
       #result-canvas {
         width: 100%;
+        height: calc(100dvh - 80px);
         display: block;
-        max-height: calc(100dvh - 80px);
         object-fit: contain;
       }
       .result-actions {
@@ -2187,7 +2194,7 @@
 
         // 총 너비: 사진 한 장 너비 기준 (여러 장이면 같은 너비로 나란히)
         const W = photoW * n;
-        const HALF = photoH; // top half height = 사진 원본 높이
+        const HALF = Math.round((cellW * 9) / 16);
         const H = HALF * 2;
 
         const canvas = document.getElementById("result-canvas");
