@@ -1985,6 +1985,7 @@
         const url = URL.createObjectURL(recordedBlob);
         const rv = document.getElementById("result-video");
         rv.src = url;
+        rv.style.transform = "scaleX(-1)"; // ← 이 줄 추가
         rv.muted = false;
         rv.play();
 
