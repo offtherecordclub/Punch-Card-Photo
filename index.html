@@ -1506,10 +1506,8 @@
               ctxB.save();
               starDraw(ctxB, cx, cy, r, rot);
               ctxB.clip();
-              if (facingMode === "user") {
-                ctxB.translate(W, 0);
-                ctxB.scale(-1, 1);
-              }
+              ctx.translate(vw, 0);
+              ctx.scale(-1, 1);
               ctxB.drawImage(video, ox, oy, dw, dh);
               ctxB.restore();
             });
@@ -2003,7 +2001,7 @@
         const rv = document.getElementById("result-video");
         rv.src = url;
         rv.muted = false;
-        rv.style.transform = recordedFacingMode === "user" ? "scaleX(-1)" : ""; // ← 여기
+        rv.style.transform = "scaleX(-1)";
         rv.play();
 
         // Theme bottom colour
