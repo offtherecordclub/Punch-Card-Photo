@@ -1506,8 +1506,11 @@
               ctxB.save();
               starDraw(ctxB, cx, cy, r, rot);
               ctxB.clip();
-              ctx.translate(vw, 0);
-              ctx.scale(-1, 1);
+              // 이렇게 유지
+              if (facingMode === "user") {
+                ctx.translate(vw, 0);
+                ctx.scale(-1, 1);
+              }
               ctxB.drawImage(video, ox, oy, dw, dh);
               ctxB.restore();
             });
@@ -2001,7 +2004,7 @@
         const rv = document.getElementById("result-video");
         rv.src = url;
         rv.muted = false;
-        rv.style.transform = "scaleX(-1)";
+        rv.style.transform = facingMode === "user" ? "scaleX(-1)" : "";
         rv.play();
 
         // Theme bottom colour
